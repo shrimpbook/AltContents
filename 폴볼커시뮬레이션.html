@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>어느 날 볼커로 회귀했다 시뮬레이션</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #eef2f5;
+      font-family: 'Malgun Gothic', sans-serif;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .description {
+      background: #f7f9fa;
+      padding: 10px 15px;
+      border-left: 4px solid #4285f4;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .scenario, .result, .final-outcome, .historical {
+      margin-bottom: 20px;
+    }
+    .choices button {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #4285f4;
+      color: #fff;
+      transition: background-color 0.3s ease;
+    }
+    .choices button:hover {
+      background-color: #3367d6;
+    }
+    .historical {
+      background: #f0f4f7;
+      padding: 15px;
+      border-left: 4px solid #d35400;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+      /* Responsive styles for smaller screens */
+        @media (max-width: 1500px) {
+            .widget-container {
+                max-width: 100%;
+                aspect-ratio: 400 / 900; /* Adjust aspect ratio for better visibility */
+            }
+        }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>어느 날 폴 볼커로 회귀했다 BY OpenPEN</h1>
+    <p>1970년대 후반, 미국은 극심한 인플레이션과 경제적 혼란에 빠져 있었습니다. 이제, 당신은 폴 볼커(Federal Reserve 의장)가 되어 경제를 안정시키기 위한 중대한 결정을 내려야 합니다.</p>
+    <div class="scenario" id="scenario"></div>
+    <div class="scenario" id="scenario"></div>
+    <div class="choices" id="choices"></div>
+    <div class="result" id="result"></div>
+    <div class="final-outcome" id="outcome"></div>
+    <div class="historical" id="historical"></div>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        "subject": "경제학자",
+        "description": "하루 종일 연구실에 파묻혀 있는 당신은, 거리마다 치솟는 인플레이션과 불안정한 금융 시장의 신호를 목격한다. 경제 지표는 악화되고, 증권가에서는 불안의 기운이 감돌고 있다. 연구실 창밖으로 보이는 도심의 모습은 마치 전쟁터와도 같다.",
+        "text": "강력한 금리 인상 없이는 인플레이션을 막을 수 없습니다! 우리는 1970년대와 같은 스태그플레이션을 겪을 수도 있습니다. 만약 우리가 지금 결단을 내리지 않는다면, 경제는 더 큰 충격을 받을 것입니다!",
+        "choices": [
+          { "text": "금리를 급격히 인상", "result": "인플레이션은 억제되었지만, 중소기업이 무너지고 실업률이 치솟았습니다.", "thoughts": "이렇게까지 해야 하는 걸까? 하지만 물가가 통제 불능 상태가 되면 더 큰 재앙이 올 것이다.","score": 0 },
+          { "text": "완만한 금리 조정", "result": "인플레이션이 지속되었지만, 경기 침체를 늦출 수 있었습니다.", "thoughts": "점진적 접근이 좋을까? 하지만 너무 늦으면 경제가 걷잡을 수 없이 무너진다.", "score": 1 },
+          { "text": "정부 개입 요청", "result": "정부가 시장에 개입하면서 신뢰가 흔들렸고, 경제 회복이 지연되었습니다.",  "thoughts": "정부를 끌어들이면 시장이 연준을 믿지 않을 수도 있다... 하지만 고통을 줄이는 게 중요하지 않은가?","score": 2 }
+        ]
+      },
+     {
+        "subject": "정치인",
+        "description": "정치 무대는 이미 긴장과 분열의 도가니입니다. 국회와 백악관에서는 대중의 불만과 미디어의 압박이 극에 달해, 하루에도 수차례 긴급 회의가 소집되고 있습니다. 정국은 불안정하며, 각종 시위와 집회 소식이 끊이지 않습니다.",
+        "text": "대중의 분노를 고려해야 합니다. 인플레이션을 고려해서 금리를 갑자기 올리면 정치적 후폭풍이 클 것입니다. 대통령과 의회가 당신의 결정을 주시하고 있습니다.",
+        "choices": [
+          { "text": "금리를 급격히 인상", "result": "금융 시장은 안정을 찾았지만, 대중 시위가 발생했습니다.", "thoughts": "국민들이 버틸 수 있을까? 하지만 시장의 신뢰를 잃으면 더 큰 혼란이 올 것이다.", "score": 0 },
+          { "text": "완만한 금리 조정", "result": "대중의 불만이 있었지만 정치적으로 수용 가능한 선에서 조정되었습니다.", "thoughts": "타협적인 방법이지만, 과연 인플레이션을 잡을 수 있을까?", "score": 1 },
+          { "text": "정부 개입 요청", "result": "정치권이 정책에 개입하며 중앙은행의 독립성이 논란이 되었습니다.", "thoughts": "정부가 개입하면 금융 시장의 신뢰가 흔들릴지도 모른다... 그러나 단기적으로 안정이 필요하다.", "score": 2 }
+        ]
+      },
+      {
+        "subject": "기업 대표",
+        "description": "기업 현장은 전례 없는 금융 위기 속에 혼돈에 빠졌습니다. 공장과 사무실에서는 투자 불안과 자금난에 대한 소문이 퍼지며, 경영진들은 매일 아침 불안한 표정으로 회의를 시작합니다. 시장의 불확실성이 기업의 미래를 위협합니다.",
+        "text": "금리를 올리면 기업 대출이 막히고 투자도 줄어듭니다! 노동자 해고가 불가피할 것입니다!",
+        "choices": [
+          { "text": "금리를 급격히 인상", "result": "기업들이 대규모 도산하며, 실업률이 급등했습니다.", "thoughts": "기업들이 무너지는 것을 지켜봐야 하는가? 하지만 인플레이션을 억제하지 않으면 더 큰 위기가 올 것이다.", "score": 0 },
+          { "text": "완만한 금리 조정", "result": "기업들은 살아남았지만, 장기적인 경기 침체가 우려되었습니다.", "thoughts": "이 방법이 기업과 근로자를 보호할 수 있을까? 하지만 물가 상승은 계속될지도 모른다.", "score": 1 },
+          { "text": "정부 개입 요청", "result": "정부 지원으로 기업들이 일시적으로 버텼지만, 재정 적자가 심화되었습니다.", "thoughts": "정부 지원이 단기적 안정은 줄 수 있지만, 장기적으로 더 많은 문제를 초래할 수도 있다.", "score": 2 }
+        ]
+      },
+       {
+        "subject": "노동조합 대표",
+        "description": "거리마다 불안과 분노가 가득합니다. 일상 생활의 무게에 짓눌린 노동자들은 점차 목소리를 높이며, 파업과 시위의 기운이 번져 나갑니다.",
+        "text": "실업률이 급등하면 노동자들은 거리로 나올 것입니다!",
+        "choices": [
+          { "text": "금리를 급격히 인상", "result": "대량 해고와 파업이 발생하며, 노동계와 정부 간의 갈등이 격화되었습니다.", "thoughts": "고통을 감수해야 하는가? 하지만 이대로 두면 경제가 더 악화될 것이다.", "score": 0 },
+          { "text": "완만한 금리 조정", "result": "고용 악화 속도를 조절했지만, 노동자들의 불만은 계속되었습니다.", "thoughts": "단기적인 해결책일 뿐인가? 장기적으로 경제를 회복할 방법이 필요하다.", "score": 1 },
+          { "text": "정부 개입 요청", "result": "정부가 실업 급여를 확대하며 불만을 잠재웠지만, 재정 부담이 증가했습니다.", "thoughts": "국가 재정이 감당할 수 있을까? 하지만 당장의 사회 혼란을 줄일 필요가 있다.", "score": 2 }
+        ]
+      },
+      {
+        "subject": "언론",
+        "description": "뉴스룸은 긴박감으로 가득 차 있습니다. 전 세계에서 속보가 쏟아지고, 각종 경제 지표와 정치적 이슈가 동시에 터져 나오고 있습니다.",
+        "text": "이번 결정은 역사의 평가를 받을 것입니다. 당신은 어떤 선택을 하겠습니까?",
+        "choices": [
+          { "text": "금리를 급격히 인상", "result": "언론은 ‘불가피한 결단’이라 평가했으나, 대중의 불만도 커졌습니다.", "thoughts": "역사가 나를 어떻게 평가할까? 하지만 내 역할은 국민이 아니라 경제를 구하는 것이다.", "score": 0 },
+          { "text": "완만한 금리 조정", "result": "언론은 신중하지만 지나치게 조심스러운 대응이라 평가했습니다.", "thoughts": "과연 적절한 균형을 맞춘 것인가?", "score": 1 },
+          { "text": "정부 개입 요청", "result": "언론은 ‘중앙은행의 독립성 약화’라며 비판했습니다.", "thoughts": "연준의 신뢰를 지켜야 하는데, 과연 올바른 선택일까?", "score": 2 }
+        ]
+      },
+      {
+        "subject": "대중",
+        "description": "거리는 공포와 분노로 물들어 있습니다. 서민들은 매 순간 생존을 위해 분투하고 있습니다.",
+        "text": "우리는 이미 고통받고 있습니다!",
+        "choices": [
+          { "text": "금리를 급격히 인상", "result": "대중의 분노가 폭발하며 전국적인 시위가 벌어졌습니다.", "thoughts": "대중의 분노를 감당할 수 있을까? 하지만 미래를 위해 희생이 필요하다.", "score": 0 },
+          { "text": "완만한 금리 조정", "result": "대중은 불만을 품었지만, 비교적 차분한 반응을 보였습니다.", "thoughts": "점진적인 변화가 더 나은 해결책일지도 모른다.", "score": 1 },
+          { "text": "정부 개입 요청", "result": "정부의 개입으로 단기적인 안정을 찾았으나, 경제 불안정성이 심화되었습니다.", "thoughts": "정책적 개입이 필요한가? 하지만 장기적으로 경제에 부담이 될 수도 있다.", "score": 2 }
+        ]
+      }
+    ];
+
+    let scenarioIndex = 0;
+    let totalScore = 0;
+    let resultsLog = [];
+
+    function showNextScenario() {
+      if (scenarioIndex < scenarios.length) {
+        let scenario = scenarios[scenarioIndex];
+        let choicesHTML = scenario.choices.map((choice, i) => 
+          `<button onclick="chooseScenario(${i})">${choice.text}</button>`
+        ).join('');
+        
+        // 시나리오 상단에 경제/일상 상황 설명 추가
+        let descriptionHTML = `<div class="description">${scenario.description}</div>`;
+        
+        document.getElementById("scenario").innerHTML = descriptionHTML + `<p><strong>${scenario.subject}:</strong> "${scenario.text}"</p>`;
+        document.getElementById("choices").innerHTML = choicesHTML;
+      } else {
+        showFinalOutcome();
+      }
+    }
+
+    function chooseScenario(choiceIndex) {
+      let scenario = scenarios[scenarioIndex];
+      let choice = scenario.choices[choiceIndex];
+
+      totalScore += choice.score;
+      resultsLog.push(`<p><strong>${scenario.subject}:</strong> ${choice.result}</p>`);
+
+      scenarioIndex++;
+
+      if (scenarioIndex < scenarios.length) {
+        showNextScenario();
+      } else {
+        showFinalOutcome();
+      }
+    }
+
+    function showFinalOutcome() {
+      let outcomeText;
+      let thoughts; // 볼커의 심리 묘사
+
+      if (totalScore <= 2) {
+        outcomeText = "💥 극단적 긴축 정책으로 인플레이션은 잡혔지만, 실업률이 20%를 넘어서며 대공황 이후 최악의 불황이 찾아왔다.";
+        thoughts = "백악관에서 걸려온 전화는 날카로웠다. 대통령의 분노 섞인 목소리가 들려왔다. '당신은 연준 의장이 맞습니까, 아니면 경제를 박살 내는 괴물입니까?' 볼커는 말없이 담배를 피웠다. 스스로를 합리화할 수 있을까? 경제학적으로 맞는 선택이었지만, 거리에는 분노한 시민들이 가득했다.";
+      } else if (totalScore <= 4) {
+        outcomeText = "📉 금리를 대폭 인상하여 인플레이션은 진정되었지만, 금융 시스템이 붕괴하고 대형 은행들이 줄도산했다.";
+        thoughts = "볼커는 뉴욕 증시 폭락 소식을 들으며 커피잔을 내려놓았다. 은행들이 무너지고, 신문은 그를 '21세기의 경제 학살자'라 불렀다. 하지만 그는 흔들리지 않았다. '나는 해야 할 일을 했다.' 그는 혼잣말했다. 하지만 가슴 속 깊은 곳에서, 작은 의문이 고개를 들었다.";
+      } else if (totalScore <= 6) {
+        outcomeText = "⚖️ 완만한 금리 조정으로 경제는 서서히 회복되고 있지만, 인플레이션이 장기화되며 연준의 정책 신뢰도가 흔들리고 있다.";
+        thoughts = "볼커는 보고서를 펼쳐보았다. 수치는 악화되고 있었고, 시장은 연준의 우유부단함을 비판했다. '너무 신중했나?' 그는 고개를 저었다. 아니, 자신은 최선을 다했다. 그러나, 사람들은 인내심이 없었다. 당장의 고통을 피하려다 더 깊은 늪에 빠지고 있는 것은 아닐까?";
+      } else if (totalScore <= 8) {
+        outcomeText = "💼 기업과 금융 시장을 고려한 점진적 조정이 이루어졌으나, 금리 정책의 효과가 나타나기까지 너무 많은 시간이 소요되고 있다.";
+        thoughts = "볼커는 한숨을 쉬었다. 완만한 조정이 옳은 길이라고 믿었지만, 시장은 여전히 혼란스러웠다. 백악관은 압박을 가했고, 기자들은 연일 비판 기사를 쏟아냈다. '연준은 결단력이 없다'는 말이 그의 귀를 파고들었다. 그는 책상을 두드리며 중얼거렸다. '시간만 더 있다면...'";
+      } else if (totalScore <= 10) {
+        outcomeText = "🏛️ 정부의 개입으로 경제는 일시적으로 안정되었지만, 장기적인 부채 증가로 인해 연준의 신뢰가 크게 훼손되었다.";
+        thoughts = "볼커는 대통령과의 회담을 마치고 돌아왔다. 그는 원하지 않았다. 연준의 독립성을 스스로 포기하는 것은 그의 철학에 반하는 일이었다. 하지만 시장의 혼란을 막기 위해 정부 보조금을 승인해야 했다. 거울 속 그의 모습은 전보다 늙어 보였다. '내가 연준의 원칙을 배신한 걸까?'";
+      } else if (totalScore <= 12) {
+        outcomeText = "🌍 미국 경제는 단기적으로 안정을 찾았으나, 국제 금융 시장에서 미국의 신뢰가 떨어지며 달러화 가치가 급락했다.";
+        thoughts = "볼커는 해외 신문을 펼쳤다. '달러, 역사적 최저치 기록!' 굵은 헤드라인이 눈에 들어왔다. '우리는 글로벌 리더인가, 아니면 흔들리는 거인인가?' 그는 깊은 고민에 빠졌다. 단기적 안정과 장기적 신뢰 사이에서, 그는 무엇을 선택한 걸까?";
+      } else {
+        outcomeText = "🔻 정부의 과도한 개입으로 미국 경제의 신뢰가 무너졌고, 해외 투자자들의 이탈로 인해 금융 시장이 붕괴했다.";
+        thoughts = "볼커는 텅 빈 연준 회의실에 홀로 앉아 있었다. 해외 자본이 빠져나가고, 시장은 연준을 더 이상 믿지 않았다. '나는 누구를 위해 이 정책을 폈던가?' 그는 천장을 바라보며 되뇌었다. 그의 정책은 단기적으로는 국민을 보호했지만, 결국 연준의 독립성을 무너뜨리는 길이 되어버렸다.";
+      }
+
+      document.getElementById("scenario").innerHTML = "";
+      document.getElementById("choices").innerHTML = "";
+      document.getElementById("result").innerHTML = `<h3>선택 결과:</h3>` + resultsLog.join('');
+      document.getElementById("outcome").innerHTML = `<p><strong>최종 결과:</strong> ${outcomeText}</p><p><em>볼커의 생각:</em> ${thoughts}</p>`;
+      
+      // 역사적 비교 정보 추가
+      let historicalHTML = `<h2>역사적 비교</h2>
+       <p>실제 폴 볼커는 1979년 연준 의장 취임 이후, 인플레이션을 잡기 위해 강력한 통화 긴축 정책, 즉 <strong>급격한 금리 인상</strong>을 단행했습니다.</p>
+      <p>이로 인해 단기적으로는 심각한 경기 침체와 높은 실업률(일부 시기 10~12% 이상)이 초래되었으나, 1983년까지 인플레이션을 효과적으로 억제하며 미국 경제의 장기적 안정 기반을 마련했습니다.</p>
+      <p>당신의 선택 결과와 비교해보면, 볼커의 실제 선택은 <strong>금리를 급격히 인상</strong>하는 정책이었으며, 이는 시뮬레이션에서 극단적 긴축 정책에 해당합니다.</p>
+      <p>그의 결정은 단기적으로 엄청난 희생을 요구했지만, 결국 미국 경제의 장기적 신뢰 회복을 가져왔습니다. 오늘날까지도 많은 경제학자들은 그의 결정을 “필요한 희생”으로 평가합니다.</p>
+      <p>작성자: https://4rest-maker.tistory.com/</p>`;
+      document.getElementById("historical").innerHTML = historicalHTML;
+    }
+
+    showNextScenario();
+  </script>
+</body>
+</html>
